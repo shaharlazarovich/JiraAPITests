@@ -1,0 +1,7 @@
+
+    {
+        "issues": [
+            { "id": "1", "key": "TEST-1", "fields": { "summary": "Test Issue 1", "description": null, "status": { "name": "To Do" } } },
+            { "id": "2", "key": "TEST-2", "fields": { "summary": "Test Issue 2", "description": null, "status": { "name": "Done" } } }
+        ]
+    }
