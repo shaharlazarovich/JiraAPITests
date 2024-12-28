@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj": {}
+    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj": {}
   },
   "projects": {
-    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj": {
+    "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj",
+        "projectUniqueName": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj",
         "projectName": "JiraApiProject",
-        "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj",
+        "projectPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\obj\\",
+        "outputPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -100,14 +100,14 @@
         }
       }
     },
-    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj": {
+    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
+        "projectUniqueName": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
         "projectName": "JiraApiTests",
-        "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
+        "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\obj\\",
+        "outputPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -122,8 +122,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj": {
-                "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj"
+              "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj": {
+                "projectPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj"
               }
             }
           }
