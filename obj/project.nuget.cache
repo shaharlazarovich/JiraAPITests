@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rTVcgJlOgc8=",
+  "dgSpecHash": "3NxWkZ4ki/U=",
   "success": true,
-  "projectFilePath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
+  "projectFilePath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ADMIN\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\ADMIN\\.nuget\\packages\\coverlet.collector\\6.0.2\\coverlet.collector.6.0.2.nupkg.sha512",

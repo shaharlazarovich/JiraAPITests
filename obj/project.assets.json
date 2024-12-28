@@ -2793,11 +2793,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
+      "projectUniqueName": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
       "projectName": "JiraApiTests",
-      "projectPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
+      "projectPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
       "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\obj\\",
+      "outputPath": "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"

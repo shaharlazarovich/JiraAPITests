@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj": {}
+    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj": {}
   },
   "projects": {
     "d:\\Docs\\Source\\ProdX\\MVP\\JiraApiProject\\JiraApiProject.csproj": {
@@ -100,14 +100,14 @@
         }
       }
     },
-    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj": {
+    "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
+        "projectUniqueName": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
         "projectName": "JiraApiTests",
-        "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\JiraApiTests.csproj",
+        "projectPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\JiraApiTests.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTestsSafe2\\obj\\",
+        "outputPath": "D:\\Docs\\Source\\ProdX\\MVP\\JiraApiTests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -5,17 +5,6 @@ D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\JiraApiProject.deps.json
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\JiraApiProject.runtimeconfig.json
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\appsettings.Development.json
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\appsettings.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_07-50-57.txt.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_08-49-46.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_08-57-45.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-14-06.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-14-59.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-15-16.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-16-20.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-16-50.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-18-13.json
-D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-25-39.json
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\JiraApiProject.staticwebassets.endpoints.json
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\JiraApiProject.exe
 D:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\testhost.exe
@@ -269,3 +258,5 @@ d:\Docs\Source\ProdX\MVP\JiraApiTestsSafe2\obj\Debug\net9.0\refint\JiraApiTests.
 d:\Docs\Source\ProdX\MVP\JiraApiTestsSafe2\obj\Debug\net9.0\JiraApiTests.pdb
 d:\Docs\Source\ProdX\MVP\JiraApiTestsSafe2\obj\Debug\net9.0\JiraApiTests.genruntimeconfig.cache
 d:\Docs\Source\ProdX\MVP\JiraApiTestsSafe2\obj\Debug\net9.0\ref\JiraApiTests.dll
+d:\Docs\Source\ProdX\MVP\JiraApiTests\bin\Debug\net9.0\raw_response_2024-12-26_13-54-38_8e2331e2-dea7-4089-8bde-a20f12de5fa8.json
+d:\Docs\Source\ProdX\MVP\JiraApiTests\obj\Debug\net9.0\JiraApiTests.sourcelink.json
