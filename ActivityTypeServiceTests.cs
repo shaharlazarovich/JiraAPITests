@@ -32,38 +32,39 @@ public class ActivityTypeServiceTests
     }
 
     [Fact]
-    public async Task AddActivityTypes_ShouldAddTypesToDatabase()
+    public async Task GetAllActivityTypes_ReturnsCorrectData()
     {
         // Arrange
         var activityTypes = new List<ActivityType>
         {
-            new ActivityType { Id = 1, Name = "Assigned Issue" },
-            new ActivityType { Id = 2, Name = "Updated Description" }
+            new ActivityType { Id = 1, Name = "Created Issue" },
+            new ActivityType { Id = 2, Name = "Updated Issue" },
         };
 
-        // Act
         await _dbContext.ActivityTypes.AddRangeAsync(activityTypes);
         await _dbContext.SaveChangesAsync();
 
+        // Act
+        var result = await _activityTypeService.GetAllActivityTypes();
+
         // Assert
-        var savedActivityTypes = _dbContext.ActivityTypes.ToList();
-        Assert.Equal(2, savedActivityTypes.Count);
-        Assert.Contains(savedActivityTypes, at => at.Name == "Assigned Issue");
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, at => at.Name == "Created Issue");
+        Assert.Contains(result, at => at.Name == "Updated Issue");
     }
 
     [Fact]
-    public async Task AddDuplicateActivityType_ShouldThrowException()
+    public async Task AddActivityType_ShouldAddNewType()
     {
         // Arrange
-        var activityType = new ActivityType { Id = 1, Name = "Assigned Issue" };
-        await _dbContext.ActivityTypes.AddAsync(activityType);
-        await _dbContext.SaveChangesAsync();
+        var newActivityType = new ActivityType { Id = 3, Name = "Deleted Issue" };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(async () =>
-        {
-            await _dbContext.ActivityTypes.AddAsync(activityType);
-            await _dbContext.SaveChangesAsync();
-        });
+        // Act
+        await _activityTypeService.AddActivityType(newActivityType);
+
+        // Assert
+        var result = _dbContext.ActivityTypes.SingleOrDefault(at => at.Id == 3);
+        Assert.NotNull(result);
+        Assert.Equal("Deleted Issue", result?.Name);
     }
 }
