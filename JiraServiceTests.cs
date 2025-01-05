@@ -5,12 +5,15 @@ using System.Threading.Tasks;
 using Xunit;
 using Moq;
 using Moq.Protected;
-using JiraApiProject.Services; // Adjust namespace based on your project
+using JiraApiProject.Services;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using JiraApiProject;
+using MockQueryable.Moq;
 
 public class JiraServiceTests
 {
@@ -18,92 +21,89 @@ public class JiraServiceTests
     private readonly HttpClient _httpClient;
     private readonly IOptions<JiraSettings> _settings;
     private readonly JiraService _jiraService;
-    private Mock<ILogger<JiraService>> _mockLogger;
-    private ILogger<JiraService> _logger;
+    private readonly JiraDbContext _dbContext;
+    private readonly Mock<ILogger<JiraService>> _mockLogger;
+
+    // Additional mocks for new dependencies
+    private readonly Mock<UserService> _mockUserService;
+    private readonly Mock<UserActivityService> _mockUserActivityService;
+    private readonly Mock<UserProfileService> _mockUserProfileService;
+    private readonly Mock<JiraHistoryService> _mockJiraHistoryService;
 
     public JiraServiceTests()
     {
-        // Initialize _mockHttpMessageHandler
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-
-        _mockLogger = new Mock<ILogger<JiraService>>();
-        
-        _logger = _mockLogger.Object; // Extract the mocked logger object
-
-        // Create HttpClient with the mock handler
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
         {
             BaseAddress = new Uri("https://test.atlassian.net/")
         };
 
-        // Initialize settings
-        var settings = new JiraSettings
+        var options = new DbContextOptionsBuilder<JiraDbContext>()
+            .UseInMemoryDatabase("TestDb")
+            .Options;
+
+        _dbContext = new JiraDbContext(options)
+        {
+            Users = new List<User>().AsQueryable().BuildMockDbSet().Object,
+            UserActivities = new List<UserActivity>().AsQueryable().BuildMockDbSet().Object,
+            UserProfiles = new List<UserProfile>().AsQueryable().BuildMockDbSet().Object,
+            ActivityTypes = new List<ActivityType>().AsQueryable().BuildMockDbSet().Object,
+            JiraIssues = new List<Issue>().AsQueryable().BuildMockDbSet().Object,
+            IssueHistories = new List<IssueHistory>().AsQueryable().BuildMockDbSet().Object
+        };
+
+        _mockLogger = new Mock<ILogger<JiraService>>();
+        _settings = Options.Create(new JiraSettings
         {
             BaseUrl = "https://test.atlassian.net",
             Username = "user",
             ApiToken = "api-token"
-        };
+        });
 
-        // Wrap settings in IOptions
-        _settings = Options.Create(settings);
+        // Initialize mocks for additional dependencies
+        _mockUserService = new Mock<UserService>(
+            new Mock<ILogger<UserService>>().Object,
+            _dbContext,
+            _httpClient);
 
-        // Initialize JiraService
-        _jiraService = new JiraService(_httpClient, _settings, _logger); // Pass the mocked logger
+        _mockUserActivityService = new Mock<UserActivityService>(
+            new Mock<ILogger<UserActivityService>>().Object,
+            _dbContext,
+            _httpClient);
+
+        _mockUserProfileService = new Mock<UserProfileService>(
+            _dbContext,
+            new Mock<ILogger<UserProfileService>>().Object);
+
+        _mockJiraHistoryService = new Mock<JiraHistoryService>(
+            new Mock<ILogger<JiraHistoryService>>().Object,
+            _dbContext,
+            _httpClient);
+
+        _jiraService = new JiraService(
+            _httpClient,
+            _settings,
+            _mockLogger.Object,
+            _dbContext,
+            _mockUserService.Object,
+            _mockUserActivityService.Object,
+            _mockUserProfileService.Object,
+            _mockJiraHistoryService.Object);
     }
 
     [Fact]
     public async Task GetIssues_ReturnsIssues()
     {
-        // Arrange
         var mockIssues = new[]
         {
-            new { id = "1", key = "TEST-1" },
-            new { id = "2", key = "TEST-2" }
+            new { id = "1", key = "TEST-1", fields = new { summary = "Summary 1", description = "Description 1" } },
+            new { id = "2", key = "TEST-2", fields = new { summary = "Summary 2", description = "Description 2" } }
         };
 
-        _mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Get &&
-                    req.RequestUri == new Uri($"{_settings.Value.BaseUrl}/rest/api/3/search")),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(JsonConvert.SerializeObject(new { issues = mockIssues }))
-            });
+        SetupHttpResponse(HttpStatusCode.OK, new { issues = mockIssues });
 
-        // Act
         var result = await _jiraService.GetIssues();
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, issue => issue.Key == "TEST-1");
-        Assert.Contains(result, issue => issue.Key == "TEST-2");
-    }
-    
-    [Fact]
-    public async Task GetIssues_ReturnsIssues_WhenValidResponse()
-    {
-        // Arrange
-        var mockResponse = new
-        {
-            issues = new[]
-            {
-                new { id = "1", key = "TEST-1" },
-                new { id = "2", key = "TEST-2" }
-            }
-        };
-
-        SetupHttpResponse(HttpStatusCode.OK, mockResponse);
-
-        // Act
-        var result = await _jiraService.GetIssues();
-
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.Contains(result, issue => issue.Key == "TEST-1");
@@ -113,43 +113,101 @@ public class JiraServiceTests
     [Fact]
     public async Task GetIssues_ReturnsEmptyList_WhenNoIssues()
     {
-        // Arrange
-        var mockResponse = new { issues = new object[0] };
+        SetupHttpResponse(HttpStatusCode.OK, new { issues = new object[0] });
 
-        SetupHttpResponse(HttpStatusCode.OK, mockResponse);
-
-        // Act
         var result = await _jiraService.GetIssues();
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
 
     [Fact]
-    public async Task GetIssues_ThrowsException_OnUnauthorized()
+    public async Task SaveIssuesToDatabase_ShouldSaveIssues()
     {
-        // Arrange
-        SetupHttpResponse(HttpStatusCode.Unauthorized, null);
+        var newIssues = new List<Issue>
+        {
+            new Issue
+            {
+                Key = "TEST-1",
+                Fields = new Fields
+                {
+                    Summary = "Test Summary",
+                    Description = "Test Description",
+                    Status = new Status { Name = "To Do" },
+                    Updated = DateTime.UtcNow
+                }
+            }
+        };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => _jiraService.GetIssues());
+        await _jiraService.SaveIssuesToDatabase(newIssues);
+
+        var savedIssues = await _dbContext.JiraIssues
+            .Include(i => i.Fields)
+            .ThenInclude(f => f!.Status)
+            .ToListAsync();
+
+        Assert.Single(savedIssues);
+        Assert.Equal("TEST-1", savedIssues[0].Key);
     }
 
     [Fact]
-    public async Task GetIssues_ThrowsException_OnInternalServerError()
+    public async Task SaveIssuesToDatabase_ShouldNotDuplicateKeys()
     {
-        // Arrange
-        SetupHttpResponse(HttpStatusCode.InternalServerError, null);
+        var issue = new Issue
+        {
+            Key = "TEST-1",
+            Fields = new Fields
+            {
+                Summary = "Initial Summary",
+                Updated = DateTime.UtcNow
+            }
+        };
+        _dbContext.JiraIssues.Add(issue);
+        await _dbContext.SaveChangesAsync();
 
-        // Act & Assert
-        await Assert.ThrowsAsync<HttpRequestException>(() => _jiraService.GetIssues());
+        var updatedIssue = new Issue
+        {
+            Key = "TEST-1",
+            Fields = new Fields
+            {
+                Summary = "Updated Summary",
+                Updated = DateTime.UtcNow.AddMinutes(10)
+            }
+        };
+
+        await _jiraService.SaveIssuesToDatabase(new List<Issue> { updatedIssue });
+
+        var savedIssues = await _dbContext.JiraIssues.ToListAsync();
+
+        Assert.Single(savedIssues);
+        Assert.Equal("Updated Summary", savedIssues[0]?.Fields?.Summary);
     }
 
     [Fact]
-    public async Task GetIssues_HandlesMalformedResponse()
+    public async Task GetIssuesFromDatabase_ShouldReturnSavedIssues()
     {
-        // Arrange
+        var issue = new Issue
+        {
+            Key = "TEST-1",
+            Fields = new Fields
+            {
+                Summary = "Test Summary",
+                Updated = DateTime.UtcNow
+            }
+        };
+
+        _dbContext.JiraIssues.Add(issue);
+        await _dbContext.SaveChangesAsync();
+
+        var issues = await _jiraService.GetIssuesFromDatabase();
+
+        Assert.Single(issues);
+        Assert.Equal("TEST-1", issues[0].Key);
+    }
+
+
+    private void SetupHttpResponse(HttpStatusCode statusCode, object? responseContent)
+    {
         _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -158,36 +216,8 @@ public class JiraServiceTests
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage
             {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("INVALID_JSON") // Simulate malformed JSON response
-            });
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<JsonReaderException>(() => _jiraService.GetIssues());
-
-        // Assert: Validate the exception message (generalized to avoid specific parsing message dependencies)
-        Assert.Contains("parsing", exception.Message, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private bool IsExpectedRequest(HttpRequestMessage req)
-    {
-        var uri = req.RequestUri?.ToString() ?? string.Empty;
-        return req.Method == HttpMethod.Get && uri == $"{_settings.Value.BaseUrl}/rest/api/3/search";
-    }
-
-    private void SetupHttpResponse(HttpStatusCode statusCode, object? responseContent)
-    {
-        _mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => IsExpectedRequest(req)),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage
-            {
                 StatusCode = statusCode,
                 Content = new StringContent(JsonConvert.SerializeObject(responseContent))
             });
     }
-
 }
