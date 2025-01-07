@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
 using Xunit;
 
-public class UserServiceTests
+public class JiraUserServiceTests
 {
     private readonly JiraDbContext _dbContext;
-    private readonly UserService _userService;
+    private readonly JiraUserService _userService;
 
-    public UserServiceTests()
+    public JiraUserServiceTests()
     {
         var options = new DbContextOptionsBuilder<JiraDbContext>()
             .UseInMemoryDatabase("UserServiceTestDb")
@@ -19,25 +19,25 @@ public class UserServiceTests
         // Initialize DbSets explicitly to satisfy the required properties
         _dbContext = new JiraDbContext(options)
         {
-            Users = new List<User>().AsQueryable().BuildMockDbSet().Object,
-            UserActivities = new List<UserActivity>().AsQueryable().BuildMockDbSet().Object,
-            UserProfiles = new List<UserProfile>().AsQueryable().BuildMockDbSet().Object,
-            ActivityTypes = new List<ActivityType>().AsQueryable().BuildMockDbSet().Object,
-            JiraIssues = new List<Issue>().AsQueryable().BuildMockDbSet().Object,
-            IssueHistories = new List<IssueHistory>().AsQueryable().BuildMockDbSet().Object,
+            Users = new List<JiraUser>().AsQueryable().BuildMockDbSet().Object,
+            UserActivities = new List<JiraUserActivity>().AsQueryable().BuildMockDbSet().Object,
+            UserProfiles = new List<JiraUserProfile>().AsQueryable().BuildMockDbSet().Object,
+            ActivityTypes = new List<JiraActivityType>().AsQueryable().BuildMockDbSet().Object,
+            Issues = new List<JiraIssue>().AsQueryable().BuildMockDbSet().Object,
+            IssueHistories = new List<JiraIssueHistory>().AsQueryable().BuildMockDbSet().Object,
         };
 
-        _userService = new UserService(_dbContext);
+        _userService = new JiraUserService(_dbContext);
     }
 
     [Fact]
     public async Task FetchAndSaveUsers_ShouldSaveUsers()
     {
         // Arrange
-        var users = new List<User>
+        var users = new List<JiraUser>
         {
-            new User { AccountId = "1", DisplayName = "User One", Email = "user1@example.com" },
-            new User { AccountId = "2", DisplayName = "User Two", Email = "user2@example.com" }
+            new JiraUser { AccountId = "1", DisplayName = "User One", Email = "user1@example.com" },
+            new JiraUser { AccountId = "2", DisplayName = "User Two", Email = "user2@example.com" }
         };
 
         // Act
@@ -61,7 +61,7 @@ public class UserServiceTests
     [Fact]
     public async Task AddUser_ShouldAddUserSuccessfully()
     {
-        var newUser = new User
+        var newUser = new JiraUser
         {
             AccountId = "12345",
             DisplayName = "Test User",

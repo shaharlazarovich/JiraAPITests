@@ -5,17 +5,17 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-public class UserControllerTests
+public class JiraUserControllerTests
 {
-    private readonly Mock<IUserService> _mockService;
-    private readonly Mock<ILogger<UserController>> _mockLogger;
-    private readonly UserController _controller;
+    private readonly Mock<JiraUserService> _mockService;
+    private readonly Mock<ILogger<JiraUserController>> _mockLogger;
+    private readonly JiraUserController _controller;
 
-    public UserControllerTests()
+    public JiraUserControllerTests()
     {
-        _mockService = new Mock<IUserService>();
-        _mockLogger = new Mock<ILogger<UserController>>();
-        _controller = new UserController(_mockService.Object);
+        _mockService = new Mock<JiraUserService>();
+        _mockLogger = new Mock<ILogger<JiraUserController>>();
+        _controller = new JiraUserController(_mockService.Object);
     }
 
     [Fact]
@@ -23,8 +23,8 @@ public class UserControllerTests
     {
         var mockData = new List<User>
         {
-            new User { Id = 1, Name = "User1" },
-            new User { Id = 2, Name = "User2" }
+            new JiraUser { Id = "1", Name = "User1" },
+            new JiraUser { Id = "2", Name = "User2" }
         };
         _mockService.Setup(s => s.GetAllUsers()).ReturnsAsync(mockData);
 
@@ -38,14 +38,14 @@ public class UserControllerTests
     [Fact]
     public async Task AddUser_ReturnsCreatedResult()
     {
-        var newUser = new User { Name = "User1" };
-        _mockService.Setup(s => s.AddUser(It.IsAny<User>())).ReturnsAsync(new User { Id = 1, Name = "User1" });
+        var newUser = new JiraUser { Name = "User1" };
+        _mockService.Setup(s => s.AddUser(It.IsAny<JiraUser>())).ReturnsAsync(new JiraUser { Id = "1", Name = "User1" });
 
         var result = await _controller.AddUser(newUser);
 
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
         var data = Assert.IsAssignableFrom<User>(createdResult.Value);
-        Assert.Equal(1, data.Id);
+        Assert.Equal("1", data.Id);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class UserControllerTests
     {
         _controller.ModelState.AddModelError("Name", "Required");
 
-        var result = await _controller.AddUser(new User());
+        var result = await _controller.AddUser(new JiraUser());
 
         Assert.IsType<BadRequestObjectResult>(result);
     }
@@ -61,23 +61,23 @@ public class UserControllerTests
     [Fact]
     public async Task FetchAndSaveUsers_ReturnsOkWithData()
     {
-        var mockData = new List<User>
+        var mockData = new List<JiraUser>
         {
-            new User { Id = 1, Name = "User1" },
-            new User { Id = 2, Name = "User2" }
+            new JiraUser { Id = "1", Name = "User1" },
+            new JiraUser { Id = "2", Name = "User2" }
         };
 
-        var request = new FetchUsersRequest
+        var credentials = new JiraCredentials
         {
-            JiraBaseUrl = "https://example.atlassian.net",
-            Email = "test@example.com",
-            ApiToken = "api-token"
+            BaseUrl = "https://example.atlassian.net",
+            Username = "test@example.com",
+            Token = "api-token"
         };
 
-        _mockService.Setup(s => s.FetchAndSaveUsers(request.JiraBaseUrl, request.Email, request.ApiToken))
+        _mockService.Setup(s => s.FetchAndSaveUsers(credentials.BaseUrl, credentials.Username, credentials.Token))
             .ReturnsAsync(mockData);
 
-        var result = await _controller.FetchAndSaveUsers(request);
+        var result = await _controller.FetchAndSaveUsers(credentials);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         var data = Assert.IsAssignableFrom<List<User>>(okResult.Value);
@@ -100,17 +100,17 @@ public class UserControllerTests
     [Fact]
     public async Task FetchAndSaveUsers_ReturnsInternalServerError_OnException()
     {
-        var request = new FetchUsersRequest
+        var credentials = new JiraCredentials
         {
-            JiraBaseUrl = "https://example.atlassian.net",
-            Email = "test@example.com",
-            ApiToken = "api-token"
+            BaseUrl = "https://example.atlassian.net",
+            Username = "test@example.com",
+            Token = "api-token"
         };
 
-        _mockService.Setup(s => s.FetchAndSaveUsers(request.JiraBaseUrl, request.Email, request.ApiToken))
+        _mockService.Setup(s => s.FetchAndSaveUsers(credentials.BaseUrl, credentials.Username, credentials.Token))
             .ThrowsAsync(new Exception("Service error"));
 
-        var result = await _controller.FetchAndSaveUsers(request);
+        var result = await _controller.FetchAndSaveUsers(credentials);
 
         var errorResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(500, errorResult.StatusCode);

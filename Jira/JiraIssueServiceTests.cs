@@ -15,22 +15,22 @@ using Microsoft.EntityFrameworkCore;
 using JiraApiProject;
 using MockQueryable.Moq;
 
-public class JiraServiceTests
+public class JiraIssueServiceTests
 {
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private readonly HttpClient _httpClient;
     private readonly IOptions<JiraSettings> _settings;
-    private readonly JiraService _jiraService;
+    private readonly JiraIssueService _jiraService;
     private readonly JiraDbContext _dbContext;
-    private readonly Mock<ILogger<JiraService>> _mockLogger;
+    private readonly Mock<ILogger<JiraIssueService>> _mockLogger;
 
     // Additional mocks for new dependencies
-    private readonly Mock<UserService> _mockUserService;
-    private readonly Mock<UserActivityService> _mockUserActivityService;
-    private readonly Mock<UserProfileService> _mockUserProfileService;
+    private readonly Mock<JiraUserService> _mockUserService;
+    private readonly Mock<JiraUserActivityService> _mockUserActivityService;
+    private readonly Mock<JiraUserProfileService> _mockUserProfileService;
     private readonly Mock<JiraHistoryService> _mockJiraHistoryService;
 
-    public JiraServiceTests()
+    public JiraIssueServiceTests()
     {
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
@@ -44,15 +44,15 @@ public class JiraServiceTests
 
         _dbContext = new JiraDbContext(options)
         {
-            Users = new List<User>().AsQueryable().BuildMockDbSet().Object,
-            UserActivities = new List<UserActivity>().AsQueryable().BuildMockDbSet().Object,
-            UserProfiles = new List<UserProfile>().AsQueryable().BuildMockDbSet().Object,
-            ActivityTypes = new List<ActivityType>().AsQueryable().BuildMockDbSet().Object,
-            JiraIssues = new List<Issue>().AsQueryable().BuildMockDbSet().Object,
-            IssueHistories = new List<IssueHistory>().AsQueryable().BuildMockDbSet().Object
+            Users = new List<JiraUser>().AsQueryable().BuildMockDbSet().Object,
+            UserActivities = new List<JiraUserActivity>().AsQueryable().BuildMockDbSet().Object,
+            UserProfiles = new List<JiraUserProfile>().AsQueryable().BuildMockDbSet().Object,
+            ActivityTypes = new List<JiraActivityType>().AsQueryable().BuildMockDbSet().Object,
+            Issues = new List<JiraIssue>().AsQueryable().BuildMockDbSet().Object,
+            IssueHistories = new List<JiraIssueHistory>().AsQueryable().BuildMockDbSet().Object
         };
 
-        _mockLogger = new Mock<ILogger<JiraService>>();
+        _mockLogger = new Mock<ILogger<JiraIssueService>>();
         _settings = Options.Create(new JiraSettings
         {
             BaseUrl = "https://test.atlassian.net",
@@ -61,26 +61,26 @@ public class JiraServiceTests
         });
 
         // Initialize mocks for additional dependencies
-        _mockUserService = new Mock<UserService>(
-            new Mock<ILogger<UserService>>().Object,
+        _mockUserService = new Mock<JiraUserService>(
+            new Mock<ILogger<JiraUserService>>().Object,
             _dbContext,
             _httpClient);
 
-        _mockUserActivityService = new Mock<UserActivityService>(
-            new Mock<ILogger<UserActivityService>>().Object,
+        _mockUserActivityService = new Mock<JiraUserActivityService>(
+            new Mock<ILogger<JiraUserActivityService>>().Object,
             _dbContext,
             _httpClient);
 
-        _mockUserProfileService = new Mock<UserProfileService>(
+        _mockUserProfileService = new Mock<JiraUserProfileService>(
             _dbContext,
-            new Mock<ILogger<UserProfileService>>().Object);
+            new Mock<ILogger<JiraUserProfileService>>().Object);
 
         _mockJiraHistoryService = new Mock<JiraHistoryService>(
             new Mock<ILogger<JiraHistoryService>>().Object,
             _dbContext,
             _httpClient);
 
-        _jiraService = new JiraService(
+        _jiraService = new JiraIssueService(
             _httpClient,
             _settings,
             _mockLogger.Object,
@@ -124,9 +124,9 @@ public class JiraServiceTests
     [Fact]
     public async Task SaveIssuesToDatabase_ShouldSaveIssues()
     {
-        var newIssues = new List<Issue>
+        var newIssues = new List<JiraIssue>
         {
-            new Issue
+            new JiraIssue
             {
                 Key = "TEST-1",
                 Fields = new Fields
@@ -141,7 +141,7 @@ public class JiraServiceTests
 
         await _jiraService.SaveIssuesToDatabase(newIssues);
 
-        var savedIssues = await _dbContext.JiraIssues
+        var savedIssues = await _dbContext.Issues
             .Include(i => i.Fields)
             .ThenInclude(f => f!.Status)
             .ToListAsync();
@@ -153,7 +153,7 @@ public class JiraServiceTests
     [Fact]
     public async Task SaveIssuesToDatabase_ShouldNotDuplicateKeys()
     {
-        var issue = new Issue
+        var issue = new JiraIssue
         {
             Key = "TEST-1",
             Fields = new Fields
@@ -162,10 +162,10 @@ public class JiraServiceTests
                 Updated = DateTime.UtcNow
             }
         };
-        _dbContext.JiraIssues.Add(issue);
+        _dbContext.Issues.Add(issue);
         await _dbContext.SaveChangesAsync();
 
-        var updatedIssue = new Issue
+        var updatedIssue = new JiraIssue
         {
             Key = "TEST-1",
             Fields = new Fields
@@ -175,9 +175,9 @@ public class JiraServiceTests
             }
         };
 
-        await _jiraService.SaveIssuesToDatabase(new List<Issue> { updatedIssue });
+        await _jiraService.SaveIssuesToDatabase(new List<JiraIssue> { updatedIssue });
 
-        var savedIssues = await _dbContext.JiraIssues.ToListAsync();
+        var savedIssues = await _dbContext.Issues.ToListAsync();
 
         Assert.Single(savedIssues);
         Assert.Equal("Updated Summary", savedIssues[0]?.Fields?.Summary);
@@ -186,7 +186,7 @@ public class JiraServiceTests
     [Fact]
     public async Task GetIssuesFromDatabase_ShouldReturnSavedIssues()
     {
-        var issue = new Issue
+        var issue = new JiraIssue
         {
             Key = "TEST-1",
             Fields = new Fields
@@ -196,7 +196,7 @@ public class JiraServiceTests
             }
         };
 
-        _dbContext.JiraIssues.Add(issue);
+        _dbContext.Issues.Add(issue);
         await _dbContext.SaveChangesAsync();
 
         var issues = await _jiraService.GetIssuesFromDatabase();

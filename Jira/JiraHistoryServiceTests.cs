@@ -21,12 +21,12 @@ public class JiraHistoryServiceTests
         // Initialize DbContext with mock DbSets
         _dbContext = new JiraDbContext(options)
         {
-            Users = new List<User>().AsQueryable().BuildMockDbSet().Object,
-            UserActivities = new List<UserActivity>().AsQueryable().BuildMockDbSet().Object,
-            UserProfiles = new List<UserProfile>().AsQueryable().BuildMockDbSet().Object,
-            ActivityTypes = new List<ActivityType>().AsQueryable().BuildMockDbSet().Object,
-            JiraIssues = new List<Issue>().AsQueryable().BuildMockDbSet().Object,
-            IssueHistories = new List<IssueHistory>().AsQueryable().BuildMockDbSet().Object,
+            Users = new List<JiraUser>().AsQueryable().BuildMockDbSet().Object,
+            UserActivities = new List<JiraUserActivity>().AsQueryable().BuildMockDbSet().Object,
+            UserProfiles = new List<JiraUserProfile>().AsQueryable().BuildMockDbSet().Object,
+            ActivityTypes = new List<JiraActivityType>().AsQueryable().BuildMockDbSet().Object,
+            Issues = new List<JiraIssue>().AsQueryable().BuildMockDbSet().Object,
+            IssueHistories = new List<JiraIssueHistory>().AsQueryable().BuildMockDbSet().Object,
         };
 
         // Initialize JiraHistoryService with the DbContext
@@ -37,13 +37,13 @@ public class JiraHistoryServiceTests
     public async Task SaveIssueHistory_ShouldSaveHistoryRecords()
     {
         // Arrange
-        var issue = new Issue { Key = "TEST-1" };
-        await _dbContext.JiraIssues.AddAsync(issue);
+        var issue = new JiraIssue { Key = "TEST-1" };
+        await _dbContext.Issues.AddAsync(issue);
         await _dbContext.SaveChangesAsync();
 
-        var issueHistories = new List<IssueHistory>
+        var issueHistories = new List<JiraIssueHistory>
         {
-            new IssueHistory
+            new JiraIssueHistory
             {
                 IssueId = issue.Id,
                 FieldChanged = "Status",
@@ -66,13 +66,13 @@ public class JiraHistoryServiceTests
     public async Task FetchAndSaveIssueHistory_ShouldSaveNewHistories()
     {
         // Arrange
-        var issue = new Issue { Key = "TEST-1" };
-        await _dbContext.JiraIssues.AddAsync(issue);
+        var issue = new JiraIssue { Key = "TEST-1" };
+        await _dbContext.Issues.AddAsync(issue);
         await _dbContext.SaveChangesAsync();
 
-        var issueHistories = new List<IssueHistory>
+        var issueHistories = new List<JiraIssueHistory>
         {
-            new IssueHistory
+            new JiraIssueHistory
             {
                 IssueId = issue.Id,
                 FieldChanged = "Status",
